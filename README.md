@@ -54,6 +54,7 @@ class Example extends Component {
 | onClose          | function       |  returns on layerlist close                           |
 | openButtonStyle  | null           |  see below                                            |
 | closeButtonStyle | null           |  see below                                            |
+| startOpen        | false          |  Controls layerlist start open/close state            |
 
 ## Styling
 
