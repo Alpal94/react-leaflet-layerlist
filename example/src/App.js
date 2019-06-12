@@ -20,13 +20,13 @@ export default class App extends React.Component {
 				
 					<ZoomControl />
 
-					<ReactLeafletLayerList position="topright" onOpen={() => console.log('Opening right drawer')}>
+					<ReactLeafletLayerList position="topright" startOpen={true} onOpen={() => console.log('Opening right drawer')}>
 						<LayerListItem>
 							<div>foo</div>
 						</LayerListItem>
 					</ReactLeafletLayerList>
 
-					<ReactLeafletLayerList position="topleft" onClose={() => console.log("Closing left drawer")}>
+					<ReactLeafletLayerList position="topleft" startOpen={true} onClose={() => console.log("Closing left drawer")}>
 
 						<LayerListItem>
 							<Container>
