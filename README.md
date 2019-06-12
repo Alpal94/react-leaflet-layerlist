@@ -50,6 +50,8 @@ class Example extends Component {
 |------------------|----------------|-------------------------------------------------------|
 | position         | 'topright'     |  'topright', 'bottomright', 'topleft',  'bottomleft'  |
 | style            | null           |  see below                                            |
+| onOpen           | function       |  returns on layerlist open                            |
+| onClose          | function       |  returns on layerlist close                           |
 | openButtonStyle  | null           |  see below                                            |
 | closeButtonStyle | null           |  see below                                            |
 

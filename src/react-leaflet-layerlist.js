@@ -27,6 +27,8 @@ L.Control.LayerListControl = L.Control.extend({
 		this._style = element.style;
 		this._openButtonStyle = element.openButtonStyle;
 		this._closeButtonStyle = element.closeButtonStyle;
+		this._onOpen = element.onOpen;
+		this._onClose = element.onClose;
 	},
 	onAdd: function(map) {
 
@@ -72,6 +74,7 @@ L.Control.LayerListControl = L.Control.extend({
 	},
 	open: function(map) {
 		if (!this._isOpen) {
+			if(this._onOpen) this._onOpen();
 			L.DomUtil.removeClass(this._openButton, 'visible');
 			L.DomUtil.addClass(this._openButton, 'hidden');
 
@@ -102,6 +105,7 @@ L.Control.LayerListControl = L.Control.extend({
 		L.DomUtil.addClass(this._layerListContainer, 'closed');
 		this._removeLayerlistElements(map);
 
+		if(this._onClose) this._onClose();
 		if (this._style) {
 			Object.keys(this._style).forEach(key => {
 				this._layerListContainer.style[key] = null;
@@ -139,7 +143,8 @@ class ReactLeafletLayerList extends MapControl {
 	}
 
 	createLeafletElement(props) {
-		return L.control.layerListControl({position: props.position || 'topright', style: props.style, openButtonStyle: props.openButtonStyle, ...props});
+		this._layerList = L.control.layerListControl({position: props.position || 'topright', style: props.style, onOpen: props.onOpen, onClose: props.onClose, openButtonStyle: props.openButtonStyle, ...props});
+		return this._layerList;
 	}
 }
 
@@ -159,5 +164,8 @@ ReactLeafletLayerList.propTypes = {
 	closeButtonStyle: PropTypes.objectOf(PropTypes.oneOfType([
 		PropTypes.string,
 		PropTypes.number,
-	]))
+	])),
+	onOpen: function() { return true; },
+	onClose: function() { return true; },
+	open: true
 };
