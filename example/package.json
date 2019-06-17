@@ -5,12 +5,13 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "deep-equal": "^1.0.1",
     "leaflet": "^1.3.4",
     "prop-types": "^15.6.2",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
     "react-leaflet": "^2.1.3",
-    "react-leaflet-styled-layerlist": "file:../",
+    "react-leaflet-styled-layerlist": "link:/mnt/c/Users/alasd/react-leaflet-layerlist",
     "react-scripts": "^1.1.4",
     "reactstrap": "^7.1.0"
   },

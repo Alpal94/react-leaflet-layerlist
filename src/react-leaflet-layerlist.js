@@ -2,6 +2,8 @@ import PropTypes from 'prop-types';
 import { MapControl, withLeaflet } from 'react-leaflet';
 import L from 'leaflet';
 
+var equal = require('deep-equal');
+
 var ReactDOM = require('react-dom');
 
 import './styles.css';
@@ -37,6 +39,7 @@ L.Control.LayerListControl = L.Control.extend({
 		this._layerListContainer = L.DomUtil.create('div', 'layer-list-container closed');		
 		this._openButton = L.DomUtil.create('div', 'layer-list-open-button visible', this._layerListContainer);
 		this._closeButton = L.DomUtil.create('div', 'layer-list-close-button hidden', this._layerListContainer);
+		this._map = map;
 		
 		if (this._openButtonStyle) {
 			Object.keys(this._openButtonStyle).forEach(key => {
@@ -130,6 +133,85 @@ L.Control.LayerListControl = L.Control.extend({
 			L.DomUtil.remove(item);
 		}
 		this._layerListItems = [];
+	},
+	_updateLayerlistElements: function(element) {
+		if(this._isOpen) {
+			var map = this._map;
+			this._children = element.children;
+			this._removeLayerlistElements(map);
+			this._showLayerlistElements(map);
+			/*this._newChildren = new Array();
+			for(var i = 0; i < element.children.length; i++) {
+				if(element.children[i])
+					this._newChildren.push(element.children[i]);
+			}
+			console.log("START");
+			var oldChildren = this._children;
+			var tmpLayer = this._layerListItems;
+
+			var offset = 0;
+			//Remove
+			for (var oldIndex = 0; oldIndex < oldChildren.length; oldIndex++) {
+				var willRemove = true;
+				var _undefined = true;
+				for (var index = 0; index < this._newChildren.length; index++) {
+					_undefined = false;
+
+					if(equal(oldChildren[oldIndex], this._newChildren[index], { strict: true })) {
+						willRemove = false;
+						break;
+					}
+				}
+				if(willRemove && !_undefined && this._newChildren.length && this._children.length) {
+					console.log('Offset: ' + offset);
+					console.log('Index: ' + oldIndex);
+					console.log('New length: ' + this._newChildren.length);
+					console.log('Old length: ' + oldChildren.length);
+
+					//L.DomUtil.remove(this._layerListItems[oldIndex + offset]);
+
+					//modifying here when reuse later
+
+					/*var children = new Array();
+					var newLayer = new Array();
+					for(var i = 0; i < this._children.length; i++) {
+						if(i !== oldIndex + offset) {
+							children.push(this._children[i]);
+							newLayer.push(this._layerListItems[i]);
+							console.log("OK");
+						} else console.log("REMOVE");
+					}
+					this._children = children;
+					this._layerListItems = newLayer;
+					offset++;
+				}
+			}
+
+			//Add
+			for (var addIndex = 0; addIndex < this._newChildren.length; addIndex++) {
+				var willAdd = true;
+				for (var oldIndex = 0; oldIndex < this._children.length; oldIndex++) {
+					if(equal(this._newChildren[addIndex], this._children[oldIndex], { strict: true })) {
+						willAdd = false;
+						break;
+					}
+				}
+				if(willAdd) {
+					var container = L.DomUtil.create('div', 'layer-list-item-container item-' + index, this._layerListContainer);
+					var item = this._newChildren[addIndex];
+					const el = ReactDOM.createPortal(item, container);
+					var children = new Array();
+					for(var i = 0; i < this._children.length; i++) {
+						children.push(this._children[i]);
+					}
+					children.push(item);
+					this._children = children;
+					this._layerListItems.push(container);
+					ReactDOM.render(el, container);
+				}
+			}
+			console.log("END");*/
+		}
 	}
 });
 
@@ -141,6 +223,10 @@ class ReactLeafletLayerList extends MapControl {
 
 	constructor(props) {
 		super(props);
+	}
+
+	componentWillReceiveProps() {
+		this._layerList._updateLayerlistElements(this.props);
 	}
 
 	createLeafletElement(props) {
@@ -166,8 +252,8 @@ ReactLeafletLayerList.propTypes = {
 		PropTypes.string,
 		PropTypes.number,
 	])),
-	onOpen: function() { return true; },
-	onClose: function() { return true; },
+	onOpen: function() { return null },
+	onClose: function() { return null },
 	open: true,
 	startOpen: false
 };

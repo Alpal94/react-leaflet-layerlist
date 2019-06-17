@@ -58,5 +58,8 @@
   },
   "files": [
     "dist"
-  ]
+  ],
+  "dependencies": {
+    "deep-equal": "^1.0.1"
+  }
 }
