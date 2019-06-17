@@ -22,7 +22,6 @@ L.Control.LayerListControl = L.Control.extend({
 	_position: null,
 	_style: null,
 	initialize: function(element) {
-		console.log(element);
 		this._position = element.position;
 		this._children = element.children;
 		this._layerListItems = new Array();
@@ -32,6 +31,7 @@ L.Control.LayerListControl = L.Control.extend({
 		this._onOpen = element.onOpen;
 		this._onClose = element.onClose;
 		this._startOpen = element.startOpen;
+		this._debounceActive = false;
 	},
 	onAdd: function(map) {
 
@@ -135,12 +135,17 @@ L.Control.LayerListControl = L.Control.extend({
 		this._layerListItems = [];
 	},
 	_updateLayerlistElements: function(element) {
-		if(this._isOpen) {
+		if(this._isOpen && !this._debounceActive) {
 			var map = this._map;
+			this._debounceActive = true;
 			this._children = element.children;
 			this._removeLayerlistElements(map);
 			this._showLayerlistElements(map);
+			setTimeout(this._setDebounce.bind(this), 100);
 		}
+	},
+	_setDebounce: function() {
+		this._debounceActive = false;
 	}
 });
 
