@@ -2,8 +2,6 @@ import PropTypes from 'prop-types';
 import { MapControl, withLeaflet } from 'react-leaflet';
 import L from 'leaflet';
 
-var equal = require('deep-equal');
-
 var ReactDOM = require('react-dom');
 
 import './styles.css';
@@ -22,6 +20,7 @@ L.Control.LayerListControl = L.Control.extend({
 	_position: null,
 	_style: null,
 	initialize: function(element) {
+		console.log(element);
 		this._position = element.position;
 		this._children = element.children;
 		this._layerListItems = new Array();
@@ -138,9 +137,47 @@ L.Control.LayerListControl = L.Control.extend({
 		if(this._isOpen && !this._debounceActive) {
 			var map = this._map;
 			this._debounceActive = true;
-			this._children = element.children;
-			this._removeLayerlistElements(map);
-			this._showLayerlistElements(map);
+
+			this._keepLayerListItems = [];
+			var newChildren = [];
+			console.log("START");
+			var startNew = [];
+			for(var i = 0; i < element.children.length; i++) {
+				if(element.children[i]) startNew.push(element.children[i]);
+			}
+			this._children = startNew;
+
+			
+			var stopIndex = 0;
+			var farCan = false;
+			for (var index = 0; index < this._layerListItems.length; index++) {
+				if(!farCan) stopIndex = index;
+				if(this._children[index] === startNew[index] || farCan) {
+					var item = this._layerListItems[index];
+					L.DomUtil.remove(item);
+					console.log("REMOVE");
+
+					farCan = true;
+					continue;
+				} else {
+					this._keepLayerListItems.push(this._layerListItems[index]);
+					newChildren.push(this._children[index]);
+				}
+			}
+			this._layerListItems = this._keepLayerListItems;
+			for (var index = stopIndex; index < startNew.length; index++) {
+				if(this._children[index] === startNew[index] || startNew[index] === undefined) {
+					console.log("ADDING");
+					var item = this._children[index];
+					var container = L.DomUtil.create('div', 'layer-list-item-container item-' + index, this._layerListContainer);
+					this._layerListItems.push(container);
+					newChildren.push(this._children[index]);
+					const el = ReactDOM.createPortal(item, container);
+					ReactDOM.render(el, container);
+				}
+			}
+			console.log("END");
+			this._children = newChildren;
 			setTimeout(this._setDebounce.bind(this), 100);
 		}
 	},
