@@ -42,7 +42,7 @@ export default class App extends React.Component<{}, AppState> {
 
 					<ReactLeafletLayerList position="topleft" startOpen={false} onOpen={() => setInterval(() => this.setState({startState: !this.state.startState}), 3000)}>
 
-						<LayerListItem>
+						<LayerListItem id="danger">
 							<Container>
 								<Row>
 									<Col md={6}>reactstrap</Col>
@@ -52,7 +52,7 @@ export default class App extends React.Component<{}, AppState> {
 						</LayerListItem>
 
 						{!this.state.startState &&
-							<LayerListItem>
+							<LayerListItem id="good">
 								<Container>
 									<Row>
 										<Button onClick={() => alert('clicked!') }>Button</Button>
@@ -60,7 +60,7 @@ export default class App extends React.Component<{}, AppState> {
 								</Container>
 							</LayerListItem>
 						}
-						<LayerListItem>
+						<LayerListItem id="perhaps">
 							<div>
 								<h2>Elements in a div</h2>
 								<p>With nested stuff</p>

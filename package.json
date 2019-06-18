@@ -1,6 +1,6 @@
 {
   "name": "react-leaflet-styled-layerlist",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A layerlist control for react leaflet",
   "author": "ChrisLowe-Takor",
   "license": "MIT",

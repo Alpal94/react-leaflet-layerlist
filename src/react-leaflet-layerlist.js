@@ -137,26 +137,81 @@ L.Control.LayerListControl = L.Control.extend({
 	},
 	_updateLayerlistElements: function(element) {
 		if(this._isOpen && !this._debounceActive) {
+			console.log("GREAT GREAT");
 			var map = this._map;
 			this._debounceActive = true;
-			this._children = element.children;
+			this._newChildren = new Array();
+			for(var i = 0; i < element.children.length; i++) {
+				if(element.children[i])
+					this._newChildren.push(element.children[i]);
+			}
+			console.log("START");
+			var oldChildren = this._children;
+			var tmpLayer = this._layerListItems;
 
-			this._keepLayerListItems = [];
-			this._keepLayerListItems.push(this._layerListItems[0]);
-			for (var index = 1; index < this._layerListItems.length; index++) {
-				var item = this._layerListItems[index];
-				L.DomUtil.remove(item);
+			var offset = 0;
+			//Remove
+			for (var oldIndex = 0; oldIndex < oldChildren.length; oldIndex++) {
+				var willRemove = true;
+				var _undefined = true;
+				for (var index = 0; index < this._newChildren.length; index++) {
+					_undefined = false;
+
+					if(this._newChildren[index] && oldChildren[oldIndex] && oldChildren[oldIndex].props.id === this._newChildren[index].props.id) {
+						willRemove = false;
+						break;
+					}
+				}
+				if(willRemove && !_undefined && this._newChildren.length && this._children.length) {
+					console.log('Offset: ' + offset);
+					console.log('Index: ' + oldIndex);
+					console.log('New length: ' + this._newChildren.length);
+					console.log('Old length: ' + oldChildren.length);
+
+					L.DomUtil.remove(this._layerListItems[oldIndex + offset]);
+
+					//modifying here when reuse later
+
+					var children = new Array();
+					var newLayer = new Array();
+					for(var i = 0; i < this._children.length; i++) {
+						if(i !== oldIndex + offset) {
+							children.push(this._children[i]);
+							newLayer.push(this._layerListItems[i]);
+							console.log("OK");
+						} else console.log("REMOVE");
+					}
+					this._children = children;
+					this._layerListItems = newLayer;
+					offset++;
+				}
 			}
 
-			this._layerListItems = this._keepLayerListItems;
-			for (var index = 1; index < element.children.length; index++) {
-				var item = this._children[index];
-				var container = L.DomUtil.create('div', 'layer-list-item-container item-' + index, this._layerListContainer);
-				this._layerListItems.push(container);
-				const el = ReactDOM.createPortal(item, container);
-				ReactDOM.render(el, container);
+			//Add
+			for (var addIndex = 0; addIndex < this._newChildren.length; addIndex++) {
+				var willAdd = true;
+				for (var oldIndex = 0; oldIndex < this._children.length; oldIndex++) {
+					if(this._children[oldIndex] && this._newChildren[addIndex] && this._newChildren[addIndex].props.id === this._children[oldIndex].props.id) {
+						willAdd = false;
+						break;
+					}
+				}
+				if(willAdd) {
+					console.log("ADDING");
+					var container = L.DomUtil.create('div', 'layer-list-item-container item-' + index, this._layerListContainer);
+					var item = this._newChildren[addIndex];
+					const el = ReactDOM.createPortal(item, container);
+					var children = new Array();
+					for(var i = 0; i < this._children.length; i++) {
+						children.push(this._children[i]);
+					}
+					children.push(item);
+					this._children = children;
+					this._layerListItems.push(container);
+					ReactDOM.render(el, container);
+				}
 			}
-			this._children = element.children;
+			console.log("END");
 			setTimeout(this._setDebounce.bind(this), 100);
 		}
 	},
