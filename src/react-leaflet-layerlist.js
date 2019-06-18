@@ -22,7 +22,6 @@ L.Control.LayerListControl = L.Control.extend({
 	_position: null,
 	_style: null,
 	initialize: function(element) {
-		console.log(element);
 		this._position = element.position;
 		this._children = element.children;
 		this._layerListItems = new Array();
@@ -136,84 +135,52 @@ L.Control.LayerListControl = L.Control.extend({
 		this._layerListItems = [];
 	},
 	_updateLayerlistElements: function(element) {
-		console.log(element.props.children);
 		if(this._isOpen && !this._debounceActive) {
 			var map = this._map;
 			this._debounceActive = true;
-			this._newChildren = new Array();
-			for(var i = 0; i < element.children.length; i++) {
-				if(element.children[i])
-					this._newChildren.push(element.children[i]);
-			}
-			var oldChildren = this._children;
-			var tmpLayer = this._layerListItems;
-
-			var offset = 0;
-			//Remove
-			for (var oldIndex = 0; oldIndex < oldChildren.length; oldIndex++) {
-				var willRemove = true;
-				var _undefined = true;
-				for (var index = 0; index < this._newChildren.length; index++) {
-					_undefined = false;
-
-					if(this._newChildren[index] && oldChildren[oldIndex] && oldChildren[oldIndex].props.id === this._newChildren[index].props.id) {
-						willRemove = false;
-						break;
+			var keepLayerListItems = [];
+			var farCan = false;
+			for (var index = 0; index < element.children.length; index++) {
+				if(!farCan && element.children[index] && this._children[index] && this._compareNodes(this._children[index], element.children[index])) {
+					keepLayerListItems.push(this._layerListItems[index]);
+				} else {
+					farCan = true;
+					var item = element.children[index];
+					var layerItem = this._layerListItems[index];
+					if(layerItem) {
+						L.DomUtil.remove(layerItem);
 					}
-				}
-				if(willRemove && !_undefined && this._newChildren.length && this._children.length) {
-					console.log('Offset: ' + offset);
-					console.log('Index: ' + oldIndex);
-					console.log('New length: ' + this._newChildren.length);
-					console.log('Old length: ' + oldChildren.length);
-
-					L.DomUtil.remove(this._layerListItems[oldIndex + offset]);
-
-					//modifying here when reuse later
-
-					var children = new Array();
-					var newLayer = new Array();
-					for(var i = 0; i < this._children.length; i++) {
-						if(i !== oldIndex + offset) {
-							children.push(this._children[i]);
-							newLayer.push(this._layerListItems[i]);
-						}
+					if(element.children[index]) {
+						var container = L.DomUtil.create('div', 'layer-list-item-container item-' + index, this._layerListContainer);
+						keepLayerListItems.push(container);
+						const el = ReactDOM.createPortal(item, container);
+						ReactDOM.render(el, container);
 					}
-					this._children = children;
-					this._layerListItems = newLayer;
-					offset++;
 				}
 			}
-
-			//Add
-			for (var addIndex = 0; addIndex < this._newChildren.length; addIndex++) {
-				var willAdd = true;
-				for (var oldIndex = 0; oldIndex < this._children.length; oldIndex++) {
-					if(this._children[oldIndex] && this._newChildren[addIndex] && this._newChildren[addIndex].props.id === this._children[oldIndex].props.id) {
-						willAdd = false;
-						break;
-					}
-				}
-				if(willAdd) {
-					console.log("ADDING");
-					var container = L.DomUtil.create('div', 'layer-list-item-container item-' + index, this._layerListContainer);
-					var item = this._newChildren[addIndex];
-					const el = ReactDOM.createPortal(item, container);
-					var children = new Array();
-					for(var i = 0; i < this._children.length; i++) {
-						children.push(this._children[i]);
-					}
-					children.push(item);
-					this._children = children;
-					this._layerListItems.push(container);
-					ReactDOM.render(el, container);
-				}
-			}
+			this._layerListItems = keepLayerListItems;
+			this._children = element.children;
 			setTimeout(this._setDebounce.bind(this), 100);
 		}
 	},
 	_setDebounce: function() {
 		this._debounceActive = false;
+	},
+	_compareNodes: function(node1, node2) {
+		return this.stringifyNode(node1) === this.stringifyNode(node2);
+	}, stringifyNode(node) {
+		var cache = [];
+		var stringify = JSON.stringify(node, function(key, value) {
+			if (typeof value === 'object' && value !== null) {
+				if (cache.indexOf(value) !== -1 || key.includes("Time") || key.includes("time")) {
+					return;
+				}
+				cache.push(value);
+			}
+			return value;
+		});
+		cache = null; 
+		return stringify;
 	}
 });
 
