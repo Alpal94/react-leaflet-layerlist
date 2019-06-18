@@ -136,8 +136,8 @@ L.Control.LayerListControl = L.Control.extend({
 		this._layerListItems = [];
 	},
 	_updateLayerlistElements: function(element) {
+		console.log(element.props.children);
 		if(this._isOpen && !this._debounceActive) {
-			console.log("GREAT GREAT");
 			var map = this._map;
 			this._debounceActive = true;
 			this._newChildren = new Array();
@@ -145,7 +145,6 @@ L.Control.LayerListControl = L.Control.extend({
 				if(element.children[i])
 					this._newChildren.push(element.children[i]);
 			}
-			console.log("START");
 			var oldChildren = this._children;
 			var tmpLayer = this._layerListItems;
 
@@ -178,8 +177,7 @@ L.Control.LayerListControl = L.Control.extend({
 						if(i !== oldIndex + offset) {
 							children.push(this._children[i]);
 							newLayer.push(this._layerListItems[i]);
-							console.log("OK");
-						} else console.log("REMOVE");
+						}
 					}
 					this._children = children;
 					this._layerListItems = newLayer;
@@ -211,7 +209,6 @@ L.Control.LayerListControl = L.Control.extend({
 					ReactDOM.render(el, container);
 				}
 			}
-			console.log("END");
 			setTimeout(this._setDebounce.bind(this), 100);
 		}
 	},

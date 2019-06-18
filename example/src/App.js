@@ -11,7 +11,7 @@ export default class App extends React.Component<{}, AppState> {
 	constructor() {
 		super();
 		this.state = {
-			startState: false
+			startState: true
 		}
 	}
 
