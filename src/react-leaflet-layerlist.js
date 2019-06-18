@@ -23,7 +23,19 @@ L.Control.LayerListControl = L.Control.extend({
 	_style: null,
 	initialize: function(element) {
 		this._position = element.position;
-		this._children = element.children;
+		var newChildren = [];
+		for(var i = 0; i < element.children.length; i++){
+			if(element.children[i]) {
+				if(element.children[i].length) {
+					for(var j = 0; j < element.children[i].length; j++) {
+						newChildren.push(element.children[i][j]);
+					}
+				} else {
+					newChildren.push(element.children[i]);
+				}
+			}
+		}
+		this._children = newChildren;
 		this._layerListItems = new Array();
 		this._style = element.style;
 		this._openButtonStyle = element.openButtonStyle;
@@ -138,19 +150,35 @@ L.Control.LayerListControl = L.Control.extend({
 		if(this._isOpen && !this._debounceActive) {
 			var map = this._map;
 			this._debounceActive = true;
+			var newChildren = [];
+			for(var i = 0; i < element.children.length; i++){
+				if(element.children[i]) {
+					if(element.children[i].length) {
+						for(var j = 0; j < element.children[i].length; j++) {
+							newChildren.push(element.children[i][j]);
+						}
+					} else {
+						newChildren.push(element.children[i]);
+					}
+				}
+			}
+			console.log(newChildren);
+
 			var keepLayerListItems = [];
 			var farCan = false;
-			for (var index = 0; index < element.children.length; index++) {
-				if(!farCan && element.children[index] && this._children[index] && this._compareNodes(this._children[index], element.children[index])) {
+			var numberOfItems = newChildren.length > this._children.length  ? newChildren.length : this._children.length;
+			console.log(numberOfItems);
+			for (var index = 0; index < numberOfItems; index++) {
+				if(!farCan && newChildren[index] && this._children[index] && this._compareNodes(this._children[index], newChildren[index])) {
 					keepLayerListItems.push(this._layerListItems[index]);
 				} else {
 					farCan = true;
-					var item = element.children[index];
+					var item = newChildren[index];
 					var layerItem = this._layerListItems[index];
 					if(layerItem) {
 						L.DomUtil.remove(layerItem);
 					}
-					if(element.children[index]) {
+					if(newChildren[index]) {
 						var container = L.DomUtil.create('div', 'layer-list-item-container item-' + index, this._layerListContainer);
 						keepLayerListItems.push(container);
 						const el = ReactDOM.createPortal(item, container);
@@ -159,7 +187,7 @@ L.Control.LayerListControl = L.Control.extend({
 				}
 			}
 			this._layerListItems = keepLayerListItems;
-			this._children = element.children;
+			this._children = newChildren;
 			setTimeout(this._setDebounce.bind(this), 100);
 		}
 	},
