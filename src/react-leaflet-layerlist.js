@@ -26,9 +26,9 @@ L.Control.LayerListControl = L.Control.extend({
 		var newChildren = [];
 		for(var i = 0; i < element.children.length; i++){
 			if(element.children[i]) {
-				if(element.children[i].length) {
-					for(var j = 0; j < element.children[i].length; j++) {
-						newChildren.push(element.children[i][j]);
+				if(element.children[i].props && element.children[i].props.children && element.children[i].props.children.length) {
+					for(var j = 0; j < element.children[i].props.children.length; j++) {
+						newChildren.push(element.children[i].props.children[j]);
 					}
 				} else {
 					newChildren.push(element.children[i]);
@@ -38,6 +38,7 @@ L.Control.LayerListControl = L.Control.extend({
 		this._children = newChildren;
 		this._layerListItems = new Array();
 		this._style = element.style;
+		this._renderExclude = element.renderExclude;
 		this._openButtonStyle = element.openButtonStyle;
 		this._closeButtonStyle = element.closeButtonStyle;
 		this._onOpen = element.onOpen;
@@ -162,12 +163,10 @@ L.Control.LayerListControl = L.Control.extend({
 					}
 				}
 			}
-			console.log(newChildren);
 
 			var keepLayerListItems = [];
 			var farCan = false;
 			var numberOfItems = newChildren.length > this._children.length  ? newChildren.length : this._children.length;
-			console.log(numberOfItems);
 			for (var index = 0; index < numberOfItems; index++) {
 				if(!farCan && newChildren[index] && this._children[index] && this._compareNodes(this._children[index], newChildren[index])) {
 					keepLayerListItems.push(this._layerListItems[index]);
@@ -195,8 +194,8 @@ L.Control.LayerListControl = L.Control.extend({
 		this._debounceActive = false;
 	},
 	_compareNodes: function(node1, node2) {
-		return this.stringifyNode(node1) === this.stringifyNode(node2);
-	}, stringifyNode(node) {
+		return this.stringifyNode(node1, this._renderExclude) === this.stringifyNode(node2, this._renderExclude);
+	}, stringifyNode(node, exclude) {
 		var cache = [];
 		var stringify = JSON.stringify(node, function(key, value) {
 			if (typeof value === 'object' && value !== null) {
@@ -206,6 +205,11 @@ L.Control.LayerListControl = L.Control.extend({
 				cache.push(value);
 			}
 			if(key === "_owner") return undefined;
+			if(exclude && exclude.length) {
+				for(var i = 0; i < exclude.length; i++) {
+					if(key === exclude[i]) return undefined;
+				}
+			}
 			return value;
 		});
 		cache = null; 
@@ -228,7 +232,16 @@ class ReactLeafletLayerList extends MapControl {
 	}
 
 	createLeafletElement(props) {
-		this._layerList = L.control.layerListControl({position: props.position || 'topright', style: props.style, onOpen: props.onOpen, onClose: props.onClose, startOpen: props.startOpen, openButtonStyle: props.openButtonStyle, ...props});
+		this._layerList = L.control.layerListControl({
+			position: props.position || 'topright',
+			style: props.style,
+			onOpen: props.onOpen,
+			onClose: props.onClose,
+			startOpen: props.startOpen,
+			renderExclude: props.renderExclude,
+			openButtonStyle: props.openButtonStyle,
+			...props
+		});
 		return this._layerList;
 	}
 }
@@ -252,6 +265,7 @@ ReactLeafletLayerList.propTypes = {
 	])),
 	onOpen: function() { return null },
 	onClose: function() { return null },
+	renderExclude: [],
 	open: true,
 	startOpen: false
 };

@@ -40,7 +40,7 @@ export default class App extends React.Component<{}, AppState> {
 						</LayerListItem>
 					</ReactLeafletLayerList>
 
-					<ReactLeafletLayerList position="topleft" startOpen={false} onOpen={() => setInterval(() => this.setState({startState: !this.state.startState}), 3000)}>
+					<ReactLeafletLayerList position="topleft" startOpen={false} onOpen={() => setInterval(() => this.setState({startState: !this.state.startState}), 3000)} renderExclude={['bbox']}>
 
 						<LayerListItem id="danger">
 							<Container>
