@@ -23,19 +23,7 @@ L.Control.LayerListControl = L.Control.extend({
 	_style: null,
 	initialize: function(element) {
 		this._position = element.position;
-		var newChildren = [];
-		for(var i = 0; i < element.children.length; i++){
-			if(element.children[i]) {
-				if(element.children[i].props && element.children[i].props.children && element.children[i].props.children.length) {
-					for(var j = 0; j < element.children[i].props.children.length; j++) {
-						newChildren.push(element.children[i].props.children[j]);
-					}
-				} else {
-					newChildren.push(element.children[i]);
-				}
-			}
-		}
-		this._children = newChildren;
+		this._children = this.initChildren(element.children);
 		this._layerListItems = new Array();
 		this._style = element.style;
 		this._renderExclude = element.renderExclude;
@@ -45,6 +33,23 @@ L.Control.LayerListControl = L.Control.extend({
 		this._onClose = element.onClose;
 		this._startOpen = element.startOpen;
 		this._debounceActive = false;
+	},
+	initChildren(children) {
+		var newChildren = [];
+		for(var i = 0; i < children.length; i++){
+			if(children[i]) {
+				if(children[i]._tail || children[i]._root) { 
+					children[i].map((element) => {
+						if(element) {
+							newChildren.push(element);
+						}
+					});
+				} else {
+					newChildren.push(children[i]);
+				}
+			}
+		}
+		return newChildren;
 	},
 	onAdd: function(map) {
 
@@ -151,22 +156,11 @@ L.Control.LayerListControl = L.Control.extend({
 		if(this._isOpen && !this._debounceActive) {
 			var map = this._map;
 			this._debounceActive = true;
-			var newChildren = [];
-			for(var i = 0; i < element.children.length; i++){
-				if(element.children[i]) {
-					if(element.children[i].length) {
-						for(var j = 0; j < element.children[i].length; j++) {
-							newChildren.push(element.children[i][j]);
-						}
-					} else {
-						newChildren.push(element.children[i]);
-					}
-				}
-			}
+			var newChildren = this.initChildren(element.children);
 
 			var keepLayerListItems = [];
 			var farCan = false;
-			var numberOfItems = newChildren.length > this._children.length  ? newChildren.length : this._children.length;
+			var numberOfItems = newChildren.length > this._children.length ? newChildren.length : this._children.length;
 			for (var index = 0; index < numberOfItems; index++) {
 				if(!farCan && newChildren[index] && this._children[index] && this._compareNodes(this._children[index], newChildren[index])) {
 					keepLayerListItems.push(this._layerListItems[index]);
@@ -188,6 +182,8 @@ L.Control.LayerListControl = L.Control.extend({
 			this._layerListItems = keepLayerListItems;
 			this._children = newChildren;
 			setTimeout(this._setDebounce.bind(this), 100);
+		} else {
+			this._children = this.initChildren(element.children);
 		}
 	},
 	_setDebounce: function() {

@@ -19,6 +19,13 @@ export default class App extends React.Component<{}, AppState> {
 		//setInterval(() => this.setState({startState: !this.state.startState}), 3000);
 	}
 
+	experimentalList() {
+		const datas = ['hello', 'world', 'today', '1', '2', '3', '4'];
+		return datas.map((data, key) => {
+			return <LayerListItem>{data}</LayerListItem>;
+		});
+	}
+
 	render () {
 		return (
 			<div className="map">
@@ -50,7 +57,7 @@ export default class App extends React.Component<{}, AppState> {
 								</Row>
 							</Container>
 						</LayerListItem>
-
+						{this.experimentalList()}
 						{!this.state.startState &&
 							<LayerListItem id="good">
 								<Container>
