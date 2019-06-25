@@ -181,13 +181,10 @@ L.Control.LayerListControl = L.Control.extend({
 			}
 			this._layerListItems = keepLayerListItems;
 			this._children = newChildren;
-			setTimeout(this._setDebounce.bind(this), 100);
+			this._debounceActive = false;
 		} else {
 			this._children = this.initChildren(element.children);
 		}
-	},
-	_setDebounce: function() {
-		this._debounceActive = false;
 	},
 	_compareNodes: function(node1, node2) {
 		return this.stringifyNode(node1, this._renderExclude) === this.stringifyNode(node2, this._renderExclude);
