@@ -38,7 +38,7 @@ L.Control.LayerListControl = L.Control.extend({
 		var newChildren = [];
 		for(var i = 0; i < children.length; i++){
 			if(children[i]) {
-				if(children[i]._tail || children[i]._root) { 
+				if(children[i]._tail || children[i]._root || children[i].length) { 
 					children[i].map((element) => {
 						if(element) {
 							newChildren.push(element);
